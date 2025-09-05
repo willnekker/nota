@@ -3,10 +3,10 @@ FROM node:20-alpine as frontend-builder
 
 WORKDIR /app/frontend
 
-COPY ./frontend/package.json ./frontend/package-lock.json ./frontend/
+COPY ./frontend/package.json ./frontend/package-lock.json ./
 RUN npm install --frozen-lockfile
 
-COPY ./frontend/ ./ 
+COPY ./frontend/ . 
 RUN npm run build
 
 # Stage 2: Build the FastAPI backend and install Whisper
