@@ -3,6 +3,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 import os
 import re
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from app import models
 from app.api.deps import get_current_user, get_db
@@ -15,6 +16,12 @@ class CanvasClient:
         self.access_token = self.current_user.tokens[-1].access_token
         self.headers = {"Authorization": f"Bearer {self.access_token}"}
 
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+        retry=retry_if_exception_type(httpx.HTTPStatusError),
+        reraise=True
+    )
     async def _fetch_paginated_data(self, url: str):
         all_data = []
         async with httpx.AsyncClient() as client:
