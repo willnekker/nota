@@ -3,12 +3,13 @@ FROM node:20-alpine as frontend-builder
 
 WORKDIR /app/frontend
 
-COPY ./frontend/package.json ./frontend/package-lock.json ./
+# Copy the entire frontend directory
+COPY ./frontend/ . 
+
 # Use npm ci for clean installs in CI/CD environments
 # Use --mount=type=cache for faster builds by caching node modules
 RUN --mount=type=cache,target=/root/.npm npm ci --prefer-offline --no-audit
 
-COPY ./frontend/ . 
 RUN npm run build
 
 # Stage 2: Build the FastAPI backend and install Whisper
@@ -26,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 COPY ./backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./backend/ ./
+COPY ./backend/ . 
 
 # Stage 3: Final image
 FROM python:3.10-slim-buster
