@@ -3,11 +3,11 @@ FROM node:20-alpine as frontend-builder
 
 WORKDIR /app/frontend
 
-COPY ./frontend/package.json ./frontend/yarn.lock ./frontend/
-RUN yarn install --frozen-lockfile
+COPY ./frontend/package.json ./frontend/package-lock.json ./frontend/
+RUN npm install --frozen-lockfile
 
 COPY ./frontend/ ./ 
-RUN yarn build
+RUN npm run build
 
 # Stage 2: Build the FastAPI backend and install Whisper
 FROM python:3.10-slim-buster as backend-builder
