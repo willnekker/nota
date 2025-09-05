@@ -4,7 +4,9 @@ FROM node:20-alpine as frontend-builder
 WORKDIR /app/frontend
 
 COPY ./frontend/package.json ./frontend/package-lock.json ./
-RUN npm install --frozen-lockfile
+# Use npm ci for clean installs in CI/CD environments
+# Use --mount=type=cache for faster builds by caching node modules
+RUN --mount=type=cache,target=/root/.npm npm ci --prefer-offline --no-audit
 
 COPY ./frontend/ . 
 RUN npm run build
